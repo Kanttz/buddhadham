@@ -6,6 +6,7 @@ import 'package:buddhadham/models/section.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:sizer/sizer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -46,12 +47,18 @@ class _SearchScreenState extends State<SearchScreen> {
         print(i);
         String cleanText = parse(allTexts[i]).body?.text ?? '';
         cleanText = cleanText.replaceAll('&nbsp;', ''); // Remove '&nbsp;'
-        cleanText = cleanText.replaceAll(RegExp(r'\s+'), ' '); // Remove extra spaces
+        cleanText =
+            cleanText.replaceAll(RegExp(r'\s+'), ' '); // Remove extra spaces
         if (cleanText.length <= 50) {
           print(cleanText);
-          searchResults.add('หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.trim()}...'); //thaiNumDigit((index + 1).toString())
+          searchResults.add(
+              'หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.trim()}...'); //thaiNumDigit((index + 1).toString())
         } else {
-          SizerUtil.deviceType == DeviceType.mobile ? searchResults.add('หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.substring(0, 50).trim()}...') : searchResults.add('หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.substring(0, 70).trim()}...');
+          SizerUtil.deviceType == DeviceType.mobile
+              ? searchResults.add(
+                  'หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.substring(0, 50).trim()}...')
+              : searchResults.add(
+                  'หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.substring(0, 70).trim()}...');
         }
       }
     }
@@ -166,7 +173,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       child: Divider(),
                     ),
-                    itemCount: SizerUtil.deviceType == DeviceType.mobile ? 10 : 15,
+                    itemCount:
+                        SizerUtil.deviceType == DeviceType.mobile ? 10 : 15,
                     itemBuilder: (context, index) {
                       return ListTile(
                           title: Text(
@@ -188,7 +196,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemCount: _searchResults.length,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: SizerUtil.deviceType == DeviceType.mobile ? EdgeInsets.symmetric(vertical: 3.0) : EdgeInsets.symmetric(vertical: 10.0),
+                        padding: SizerUtil.deviceType == DeviceType.mobile
+                            ? EdgeInsets.symmetric(vertical: 3.0)
+                            : EdgeInsets.symmetric(vertical: 10.0),
                         child: ListTile(
                           // title: Text(
                           //   _searchResults[index],
@@ -201,7 +211,11 @@ class _SearchScreenState extends State<SearchScreen> {
                                   text: _searchResults[index].substring(0, 13),
                                   style: GoogleFonts.sarabun(
                                     color: AppColors().primaryColor,
-                                    fontSize: SizerUtil.deviceType == DeviceType.mobile ? AppTextSetting.APP_FONTSIZE_READ : AppTextSetting.APP_FONTSIZE_READ_TABLET,
+                                    fontSize: SizerUtil.deviceType ==
+                                            DeviceType.mobile
+                                        ? AppTextSetting.APP_FONTSIZE_READ
+                                        : AppTextSetting
+                                            .APP_FONTSIZE_READ_TABLET,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -211,29 +225,31 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ),
                                   style: GoogleFonts.sarabun(
                                     color: AppColors().primaryColor,
-                                    fontSize: SizerUtil.deviceType == DeviceType.mobile ? AppTextSetting.APP_FONTSIZE_READ : AppTextSetting.APP_FONTSIZE_READ_TABLET,
+                                    fontSize: SizerUtil.deviceType ==
+                                            DeviceType.mobile
+                                        ? AppTextSetting.APP_FONTSIZE_READ
+                                        : AppTextSetting
+                                            .APP_FONTSIZE_READ_TABLET,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           onTap: () async {
-                            int pageNumber = index + 1; // Get the correct page number
-
+                            int pageNumber =
+                                index + 1; // Get the correct page number
                             List<String> allTexts = await Section.listAllText;
                             String query = _searchController.text;
                             int page = 0;
                             int pageIndex = -1;
 
                             for (int i = 0; i < allTexts.length; i++) {
-                              //-------------------
                               final rawData = allTexts[i];
-                              final data = allTexts[i].replaceAll(RegExp(r'<[^>]*>'), ' ');
+                              final data = allTexts[i]
+                                  .replaceAll(RegExp(r'<[^>]*>'), ' ');
                               allTexts[i] = rawData;
-                              //-------------------
 
                               if (data.contains(query)) {
-                                // if (allTexts[i].contains(query)) {
                                 page++;
                                 if (page == pageNumber) {
                                   pageIndex = i;
@@ -243,11 +259,15 @@ class _SearchScreenState extends State<SearchScreen> {
                             }
 
                             if (pageIndex != -1) {
+                              SharedPreferences.getInstance().then((prefs) {
+                                prefs.setInt('last_page_search', pageIndex + 1);
+                              });
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ReadScreenForSearch(
-                                    initialPage: pageIndex + 1,
+                                    initialPage: pageIndex +
+                                        1, // Use the found pageIndex
                                     searchText: _searchController.text,
                                   ),
                                 ),
