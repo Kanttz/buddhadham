@@ -28,27 +28,49 @@ class _SearchScreenState extends State<SearchScreen> {
     return input;
   }
 
+  // Cache for RegExp and allTexts
+  final htmlTagRegExp = RegExp(r'<[^>]*>');
+  final spaceRegExp = RegExp(r'\s+');
+  List<String> allTexts = [];
+
+  Map<String, List<String>> _searchCache = {};
+
+  @override
+  void initState() {
+    super.initState();
+    AppTextSetting.APP_FONTSIZE_READ = 15;
+    AppTextSetting.APP_FONTSIZE_READ_TABLET = 23;
+
+    allTexts =
+        Section.listAllText; // Direct assignment if listAllText is a List
+  }
+
   Future<void> _search(String query) async {
     if (query.trim().isEmpty) {
       return;
     }
 
-    List<String> allTexts = await Section.listAllText;
+    // Check if results are cached
+    if (_searchCache.containsKey(query)) {
+      setState(() {
+        _searchResults = _searchCache[query]!;
+      });
+      return;
+    }
+
     List<String> searchResults = [];
 
     for (int i = 0; i < allTexts.length; i++) {
-      //-------------------
       final rawData = allTexts[i];
-      final data = allTexts[i].replaceAll(RegExp(r'<[^>]*>'), ' ');
-      allTexts[i] = rawData;
-      //-------------------
+      final data = rawData.replaceAll(htmlTagRegExp, ' ');
 
       if (data.contains(query)) {
         print(i);
-        String cleanText = parse(allTexts[i]).body?.text ?? '';
-        cleanText = cleanText.replaceAll('&nbsp;', ''); // Remove '&nbsp;'
-        cleanText =
-            cleanText.replaceAll(RegExp(r'\s+'), ' '); // Remove extra spaces
+        String cleanText = parse(rawData).body?.text ?? '';
+        cleanText = cleanText.replaceAll('&nbsp;', '');
+        cleanText = cleanText.replaceAll(spaceRegExp, ' ');
+
+        // ... (existing code to add to searchResults)
         if (cleanText.length <= 50) {
           print(cleanText);
           searchResults.add(
@@ -63,16 +85,12 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     }
 
+    // Cache the results
+    _searchCache[query] = searchResults;
+
     setState(() {
       _searchResults = searchResults;
     });
-  }
-
-  @override
-  void initState() {
-    AppTextSetting.APP_FONTSIZE_READ = 15;
-    AppTextSetting.APP_FONTSIZE_READ_TABLET = 23;
-    super.initState();
   }
 
   @override
