@@ -124,7 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: ' ค้นหา (ภาษาไทย)',
+                  hintText: ' ค้นหา ',
                   hintStyle: GoogleFonts.sarabun(
                     color: Colors.grey[400],
                   ),
