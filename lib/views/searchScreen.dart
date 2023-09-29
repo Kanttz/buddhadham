@@ -69,12 +69,10 @@ class _SearchScreenState extends State<SearchScreen> {
         String cleanText = parse(rawData).body?.text ?? '';
         cleanText = cleanText.replaceAll('&nbsp;', '');
         cleanText = cleanText.replaceAll(spaceRegExp, ' ');
-
-        // ... (existing code to add to searchResults)
         if (cleanText.length <= 50) {
           print(cleanText);
           searchResults.add(
-              'หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.trim()}...'); //thaiNumDigit((index + 1).toString())
+              'หน้าที่ ${thaiNumDigit((i + 1).toString())}    \n${cleanText.trim()}...');
         } else {
           SizerUtil.deviceType == DeviceType.mobile
               ? searchResults.add(
@@ -218,10 +216,6 @@ class _SearchScreenState extends State<SearchScreen> {
                             ? EdgeInsets.symmetric(vertical: 3.0)
                             : EdgeInsets.symmetric(vertical: 10.0),
                         child: ListTile(
-                          // title: Text(
-                          //   _searchResults[index],
-                          //   style: GoogleFonts.sarabun(),
-                          // ),
                           title: RichText(
                             text: TextSpan(
                               children: [
@@ -254,8 +248,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           onTap: () async {
-                            int pageNumber =
-                                index + 1; // Get the correct page number
+                            int pageNumber = index + 1;
                             List<String> allTexts = await Section.listAllText;
                             String query = _searchController.text;
                             int page = 0;
