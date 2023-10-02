@@ -5,6 +5,7 @@ import 'package:buddhadham/views/screenForRead.dart';
 import 'package:buddhadham/views/searchScreen.dart';
 import 'package:buddhadham/views/about.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
@@ -79,6 +80,7 @@ class MainWidget extends StatefulWidget {
 }
 
 class _MainWidgetState extends State<MainWidget> {
+  DateTime? lastPressed;
   int _selectedIndex = 0;
   late int initialPage; // Declare a variable to hold the last page index
   late int initialPageSearch; // For the search screen
@@ -117,34 +119,52 @@ class _MainWidgetState extends State<MainWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _widgetOptions(),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedLabelStyle: GoogleFonts.sarabun(),
-        unselectedLabelStyle: GoogleFonts.sarabun(),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.book),
-            label: 'อ่าน',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'ค้นหา',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'เกี่ยวกับ',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors().textColor,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: _onItemTapped,
-        backgroundColor: AppColors().primaryColor,
+    return WillPopScope(
+      onWillPop: () async {
+        DateTime now = DateTime.now();
+        if (lastPressed == null ||
+            now.difference(lastPressed!) > Duration(seconds: 3)) {
+          setState(() {
+            lastPressed = now;
+          });
+          Fluttertoast.showToast(
+            msg: "กดอีกครั้งเพื่อออกจากแอปพลิเคชั่น",
+            timeInSecForIosWeb: 3,
+            gravity: ToastGravity.BOTTOM,
+          );
+          return Future.value(false);
+        }
+        return Future.value(true);
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _widgetOptions(),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedLabelStyle: GoogleFonts.sarabun(),
+          unselectedLabelStyle: GoogleFonts.sarabun(),
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.book),
+              label: 'อ่าน',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'ค้นหา',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.info),
+              label: 'เกี่ยวกับ',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: AppColors().textColor,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          onTap: _onItemTapped,
+          backgroundColor: AppColors().primaryColor,
+        ),
       ),
     );
   }

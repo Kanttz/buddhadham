@@ -44,6 +44,7 @@ dependencies:
   sizer: ^2.0.15
   zoom_widget: ^2.0.0
   shared_preferences: ^2.2.1
+  fluttertoast: ^8.2.2
 
 flutter_native_splash:
   color: "#000000"  
